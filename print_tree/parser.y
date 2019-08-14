@@ -17,7 +17,7 @@ typedef struct No {
 
 No* allocar_no();
 void liberar_no(void* no);
-void imprimir_arvore(No* raiz);
+void imprimir_arvore(No* raiz, int loop, char lado[]);
 No* novo_no(char[50], No*, No*);
 
 %}
@@ -54,19 +54,21 @@ No* novo_no(char[50], No*, No*);
 /* Regras de Sintaxe */
 
 calc:
-    | calc exp EOL       { imprimir_arvore($2); } 
+    | calc exp EOL       { imprimir_arvore($2, 1, "raiz"); printf("\n"); } 
 
 exp: fator              
-   | exp ADD fator       { }
-   | exp SUB fator       { }
+   | exp ADD fator       { $$ = novo_no("+", $1, $3); }
+   | exp SUB fator       { $$ = novo_no("-", $1, $3); }
    ;
 
 fator: termo            
-     | fator MUL termo  { }
-     | fator DIV termo  { }
+     | fator MUL termo  { $$ = novo_no("*", $1, $3); }
+     | fator DIV termo  { $$ = novo_no("/", $1, $3); }
      ;
 
-termo: NUM { }
+termo: NUM {
+    $$ = novo_no($1, NULL, NULL);
+}
 
            
 %%
@@ -83,7 +85,7 @@ void liberar_no(void* no) {
     free(no);
 }
 
-No* novo_no(char token[50], No* direita, No* esquerda) {
+No* novo_no(char token[50], No* esquerda, No* direita) {
    No* no = allocar_no();
    snprintf(no->token, 50, "%s", token);
    no->direita = direita;
@@ -92,16 +94,15 @@ No* novo_no(char token[50], No* direita, No* esquerda) {
    return no;
 }
 
-void imprimir_arvore(No* raiz) {
+void imprimir_arvore(No* raiz, int loop, char lado[]) {
+    int i;
+    for(i = 0; i < loop; i++)
+        printf("-");
     
-    if(raiz == NULL) { printf("***"); return; }
-    printf("(%s)", raiz->token);
-    printf("direira>");
-    imprimir_arvore(raiz->direita);
-    printf("esquerda>");
-    imprimir_arvore(raiz->esquerda);
-    
-
+    if(raiz == NULL) { printf("***<%s>\n", lado); return; }
+    printf("(%s)<%s>\n", raiz->token, lado);
+    imprimir_arvore(raiz->direita, loop + 2, "direita");
+    imprimir_arvore(raiz->esquerda, loop + 2, "esquerda");
 }
 
 
