@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 
 typedef struct No {
@@ -16,6 +17,7 @@ typedef struct No {
 } No;
 
 
+No * ramo(char *operador, char *label, No *esq, No *dir);
 No* allocar_no();
 void liberar_no(No* no);
 void imprimir_arvore(No* raiz);
@@ -57,17 +59,17 @@ calc:
     | calc exp EOL       { imprimir_arvore($2); } 
 
 exp: fator               
-   | exp ADD fator       { }
-   | exp SUB fator       { }
+   | exp ADD fator       { $$ = ramo("+", "exp", $1, $3); }
+   | exp SUB fator       { $$ = ramo("-", "exp", $1, $3); }
    ;
 
 fator: termo            
-     | fator MUL termo  { }
-     | fator DIV termo  { }
+     | fator MUL termo  { $$ = ramo("*", "exp", $1, $3); }
+     | fator DIV termo  { $$ = ramo("/", "exp", $1, $3); }
      ;
 
 termo: NUM { $$ = novo_no($1, NULL, 0); }               
-   
+
 
 %%
 
@@ -75,8 +77,18 @@ termo: NUM { $$ = novo_no($1, NULL, 0); }
  * C gerado.
  */
 
+No * ramo(char *operador, char *label, No *op1, No *op2){
+    No** filhos = (No**) malloc(3 * sizeof(No*));
+
+    filhos[0] = op1;
+    filhos[1] = novo_no(operador, NULL, 0);
+    filhos[2] = op2;
+
+    return novo_no(label, filhos, 3);
+}
+
 No* allocar_no(int num_filhos) {
-    return NULL;
+    return (No *) malloc(num_filhos * sizeof(No));
 }
 
 void liberar_no(No* no) {
@@ -84,10 +96,32 @@ void liberar_no(No* no) {
 }
 
 No* novo_no(char token[50], No** filhos, int num_filhos) {
-   return NULL;
+   No *no = allocar_no(3);
+
+   strcpy(no->token, token);
+
+   no->num_filhos = num_filhos;
+   no->filhos = filhos;
+
+   return no;
 }
 
 void imprimir_arvore(No* raiz) {
+    int i;
+    if(raiz == NULL){
+        printf("***");
+        return;
+    }
+
+    printf("<%s>", raiz->token);
+
+    if(raiz->filhos != NULL){
+        printf(" -> ");
+        for(i = 0; i < 3; i++)
+            imprimir_arvore(raiz->filhos[i]);
+        printf("(folha)\n");
+    }else
+        printf(" ");
 }
 
 
