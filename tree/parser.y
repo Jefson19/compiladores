@@ -64,8 +64,8 @@ exp: fator
    ;
 
 fator: termo            
-     | fator MUL termo  { $$ = ramo("*", "exp", $1, $3); }
-     | fator DIV termo  { $$ = ramo("/", "exp", $1, $3); }
+     | fator MUL termo  { $$ = ramo("*", "termo", $1, $3); }
+     | fator DIV termo  { $$ = ramo("/", "termo", $1, $3); }
      ;
 
 termo: NUM { $$ = novo_no($1, NULL, 0); }               
