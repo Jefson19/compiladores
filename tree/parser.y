@@ -56,7 +56,7 @@ No* novo_no(char[50], No**, int);
 /* Regras de Sintaxe */
 
 calc:
-    | calc exp EOL       { imprimir_arvore($2); } 
+    | calc exp EOL       { imprimir_arvore($2); printf("*********\n"); } 
 
 exp: fator               
    | exp ADD fator       { $$ = ramo("+", "exp", $1, $3); }
@@ -113,7 +113,7 @@ void imprimir_arvore(No* raiz) {
         return;
     }
 
-    printf("<%s>", raiz->token);
+    printf("[%s]", raiz->token);
 
     if(raiz->filhos != NULL){
         printf(" -> ");
